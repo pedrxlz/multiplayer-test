@@ -4,17 +4,22 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
 
+interface Player {
+  x: number;
+  y: number;
+}
+
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+const players: { [key: string]: Player } = {};
+
 app.get("/", (req, res) => {
   res.sendFile(join(__dirname, "index.html"));
 });
-
-const players: any = {};
 
 io.on("connection", (socket) => {
   console.log("A user connected");
