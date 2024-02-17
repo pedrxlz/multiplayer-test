@@ -1,0 +1,77 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplayer Game</title>
+    <style>
+      canvas {
+        display: block;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      let playerId;
+      const players = {};
+
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      socket.on("init", (data) => {
+        playerId = data.playerId;
+        players[playerId] = { x: 0, y: 0 };
+        Object.assign(players, data.players);
+      });
+
+      socket.on("playerConnected", (player) => {
+        players[player.playerId] = { x: player.x, y: player.y };
+      });
+
+      socket.on("playerMoved", (data) => {
+        players[data.playerId].x = data.x;
+        players[data.playerId].y = data.y;
+      });
+
+      socket.on("playerDisconnected", (playerId) => {
+        delete players[playerId];
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const speed = 5;
+        if (event.key === "ArrowUp") {
+          players[playerId].y -= speed;
+        } else if (event.key === "ArrowDown") {
+          players[playerId].y += speed;
+        } else if (event.key === "ArrowLeft") {
+          players[playerId].x -= speed;
+        } else if (event.key === "ArrowRight") {
+          players[playerId].x += speed;
+        }
+        socket.emit("move", { x: players[playerId].x, y: players[playerId].y });
+      });
+
+      function drawPlayers() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const playerId in players) {
+          const player = players[playerId];
+          ctx.beginPath();
+          ctx.arc(player.x, player.y, 10, 0, Math.PI * 2);
+          ctx.fillStyle = playerId === socket.id ? "blue" : "red";
+          ctx.fill();
+          ctx.closePath();
+        }
+      }
+
+      setInterval(() => {
+        drawPlayers();
+      }, 1000 / 60);
+    </script>
+  </body>
+</html>
