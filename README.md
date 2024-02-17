@@ -6,7 +6,7 @@ This is a Node.js project for multiplayer testing.
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/your-username/multiplayer-test.git`
+1. Clone the repository: `git clone https://github.com/pedrxlz/multiplayer-test.git`
 2. Navigate to the project directory: `cd multiplayer-test`
 3. Install the dependencies: `npm install`
 
